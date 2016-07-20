@@ -1,0 +1,47 @@
+
+You can check if a specific cipher is allowed. The cipher: line should show that the given cipher is in use.
+openssl s_client -showcerts -connect www.example.com:443 -cipher RC4
+
+
+sslscan bugzilla.redhat.com > sslscan.log
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+[root@hdp3 ciphertest]# pwd
+/root/ciphertest
+
+[root@hdp3 ciphertest]# ll
+total 16
+-rw-r--r--. 1 root root  432 Jul 19 19:56 accepted-algos.txt
+-rw-r--r--. 1 root root   43 Jul 19 20:11 test1.sh
+-rw-r--r--. 1 root root 1674 Jul 19 20:19 test.log
+-rwxrwxrwx. 1 root root  780 Jul 19 19:57 test.sh
+[root@hdp3 ciphertest]# cat test.sh
+
+#!/usr/bin/env bash
+
+# OpenSSL requires the port number.
+SERVER=bugzilla.redhat.com:443
+DELAY=10
+
+for a in `cat accepted-algos.txt`
+do
+currenttime=`date "+%m-%d-%y-%T"`
+opfile="${a}.log"
+echo -ne "*****************************************" >> $opfile 2>&1
+echo -ne "Starting the Algorithm ${a} test at ${currenttime} \n" >> $opfile 2>&1
+echo "*****************************************" >> $opfile 2>&1
+result=$(ab -n 50 -Z "${a}" -c 2 "${SERVER}/index.html")
+echo "$result" >> $opfile 2>&1
+echo "$a"
+grep -w "Time per request:" $opfile
+echo -ne "*****************************************" >> $opfile 2>&1
+echo -ne "Execution End of Algorithm ${a} test at ${currenttime} \n" >> $opfile 2>&1
+echo "*****************************************" >> $opfile 2>&1
+sleep $DELAY
+done
+
+
+
+[root@hdp3 ciphertest]# crontab -l
+*/1 * * * * /root/ciphertest/test.sh > /root/ciphertest/test.log
