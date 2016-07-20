@@ -27,7 +27,7 @@ DELAY=10
 for a in `cat accepted-algos.txt`
 do
 currenttime=`date "+%m-%d-%y-%T"`
-opfile="${a}.log"
+opfile="${a}_${currenttime}.log"
 echo -ne "*****************************************" >> $opfile 2>&1
 echo -ne "Starting the Algorithm ${a} test at ${currenttime} \n" >> $opfile 2>&1
 echo "*****************************************" >> $opfile 2>&1
